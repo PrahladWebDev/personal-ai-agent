@@ -1,0 +1,50 @@
+name: Deploy Personal AI Agent
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy via Docker Compose
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SSH into VPS and deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            set -e
+
+            cd /var/www/projects/personal-ai-agent
+
+            echo "=================================="
+            echo "Pulling latest code"
+            echo "=================================="
+            git fetch --prune origin
+            git reset --hard origin/main
+            git clean -fd -e .env -e nginx/certs
+
+            echo "=================================="
+            echo "Building and starting containers"
+            echo "=================================="
+            # Deliberately omit the bundled 'nginx' service — the VPS's
+            # system Nginx handles routing/TLS for this project, same as
+            # every other project on this box. See docker-compose.yml.
+            docker compose build backend frontend
+            docker compose up -d postgres backend frontend
+
+            echo "=================================="
+            echo "Container status"
+            echo "=================================="
+            docker compose ps
+
+            echo "=================================="
+            echo "Pruning old images"
+            echo "=================================="
+            docker image prune -f

@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  height: 100%;
+}
+
+body {
+  @apply bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100;
+}
+
+.markdown-body p { @apply mb-2 last:mb-0; }
+.markdown-body ul { @apply list-disc pl-5 mb-2; }
+.markdown-body ol { @apply list-decimal pl-5 mb-2; }
+.markdown-body code { @apply bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-sm; }
+.markdown-body pre { @apply bg-slate-100 dark:bg-slate-800 p-3 rounded-lg overflow-x-auto mb-2; }
+.markdown-body a { @apply text-brand underline; }

@@ -1,0 +1,68 @@
+services:
+  postgres:
+    image: ankane/pgvector:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/migrations:/migrations:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    mem_limit: 768m
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
+    # Bound to localhost only — the VPS's own system Nginx (already
+    # terminating TLS for every other project on this box) reverse-proxies
+    # to this port. Not exposed to the public internet directly.
+    ports:
+      - "127.0.0.1:5010:4000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4000/health', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    mem_limit: 1536m
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - backend
+    # Same reasoning as backend's port binding above.
+    ports:
+      - "127.0.0.1:3010:3000"
+    mem_limit: 1024m
+
+  # The bundled 'nginx' service from the original compose file is
+  # intentionally removed here. This VPS already runs a single system-level
+  # Nginx (outside Docker) that terminates SSL and reverse-proxies every
+  # project hosted on the box — including this one. Running a second Nginx
+  # inside Docker would try to bind host ports 80/443 again and fail to
+  # start, since the system Nginx already owns them. The system Nginx talks
+  # to 'backend' and 'frontend' above via the ports published to
+  # 127.0.0.1, replicating the exact same routing rules (including the SSE
+  # buffering-off rule for /api/ai/chat) that nginx/nginx.conf defines for
+  # the bundled-Nginx deployment path. See the deployment guide.
+
+volumes:
+  pgdata:
+  uploads:
