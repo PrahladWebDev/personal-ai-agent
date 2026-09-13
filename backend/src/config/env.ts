@@ -26,7 +26,9 @@ export const env = {
 
   githubToken: process.env.GITHUB_TOKEN || '',
 
-  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
+allowedOrigins: (process.env.FRONTEND_URL || 'http://localhost:3000')
+  .split(',')
+  .map((s) => s.trim()),
 
   chatRateLimitPerMin: parseInt(process.env.CHAT_RATE_LIMIT_PER_MIN || '10', 10),
   maxQuestionLength: parseInt(process.env.MAX_QUESTION_LENGTH || '500', 10),

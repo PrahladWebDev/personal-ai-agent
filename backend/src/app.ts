@@ -21,12 +21,15 @@ export function createApp() {
   app.set('trust proxy', 1);
 
   app.use(helmet());
-  app.use(
-    cors({
-      origin: env.frontendUrl,
-      credentials: true,
-    })
-  );
+ app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || env.allowedOrigins.includes(origin)) return callback(null, true);
+      callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+  })
+);
   app.use(compression());
   app.use(cookieParser());
   app.use(express.json({ limit: '1mb' }));
