@@ -1,13 +1,13 @@
 # Build context is the repository root (see docker-compose.yml), so paths
 # below are relative to the repo root, not this backend/ folder.
-FROM node:20-alpine AS build
+FROM node:20-slim AS build
 WORKDIR /app
 COPY backend/package*.json ./
 RUN npm install
 COPY backend/ .
 RUN npm run build
 
-FROM node:20-alpine
+FROM node:20-slim
 WORKDIR /app
 ENV NODE_ENV=production
 COPY backend/package*.json ./
