@@ -1,4 +1,5 @@
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Copy, RefreshCcw } from 'lucide-react';
 import type { ChatMessage } from '@/types';
 import { SourceCard } from './SourceCard';
@@ -26,7 +27,7 @@ export function MessageBubble({
             <p>{message.content}</p>
           ) : (
             <div className="markdown-body">
-              <ReactMarkdown>{message.content || (message.isStreaming ? '…' : '')}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content || (message.isStreaming ? '…' : '')}</ReactMarkdown>
             </div>
           )}
         </div>

@@ -15,7 +15,14 @@ body {
 .markdown-body ol { @apply list-decimal pl-5 mb-2; }
 .markdown-body code { @apply bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-sm; }
 .markdown-body pre { @apply bg-slate-100 dark:bg-slate-800 p-3 rounded-lg overflow-x-auto mb-2; }
+.markdown-body pre code { @apply bg-transparent p-0; }
 .markdown-body a { @apply text-brand underline; }
+.markdown-body strong { @apply font-semibold text-slate-900 dark:text-slate-50; }
+.markdown-body hr { @apply my-3 border-slate-200 dark:border-slate-800; }
+.markdown-body table { @apply w-full mb-2 border-collapse text-sm; }
+.markdown-body th, .markdown-body td { @apply border border-slate-200 dark:border-slate-800 px-2.5 py-1.5 text-left align-top; }
+.markdown-body th { @apply bg-slate-100 dark:bg-slate-800 font-medium; }
+.markdown-body table + p, .markdown-body p + table { @apply mt-2; }
 
 /* Shared form input style used across admin singleton-record forms
    (Profile, Personal Info, Career Goals, AI Instructions). Previously
