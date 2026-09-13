@@ -43,8 +43,18 @@ export async function retrieveRelevantChunks(
     [vectorLiteral, limit]
   );
 
+  // rows are already ORDER BY similarity DESC (closest vector first).
+  // A flat `similarity > 0.2` cutoff throws away the whole result set
+  // for short or typo'd questions, where even the best-ranked match can
+  // score just under the threshold with this small local embedding
+  // model - producing a false "not enough information" answer despite
+  // the right chunk being right there. Always keep the top couple of
+  // ranked candidates; only apply the score floor beyond that.
+  const KEEP_TOP_REGARDLESS = 2;
+  const MIN_SIMILARITY = 0.2;
+
   return rows
-    .filter((r) => r.similarity > 0.2) // drop near-irrelevant matches
+    .filter((r, i) => i < KEEP_TOP_REGARDLESS || r.similarity > MIN_SIMILARITY)
     .map((r) => ({
       content: r.content,
       sourceType: r.source_type,

@@ -33,6 +33,62 @@ export interface Intent {
   isBestOrStrongest: boolean;
 }
 
+// Domain keywords that the regexes below key off of. Typo'd input (e.g.
+// "skilss", "experiance", "certifcation") would otherwise silently fail
+// every regex test and pull zero structured context, even though the
+// data exists - see correctTypos() below, which runs before any of the
+// wants* regexes and rewrites near-misses back to the canonical word.
+const DOMAIN_KEYWORDS = [
+  'skill', 'skills', 'project', 'projects', 'experience', 'education',
+  'certification', 'certifications', 'achievement', 'achievements',
+  'service', 'services', 'career', 'contact', 'github', 'portfolio',
+  'university', 'college', 'degree', 'hobbies', 'hobby',
+];
+
+function levenshtein(a: string, b: string): number {
+  const dp: number[][] = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 0; j <= b.length; j++) dp[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      dp[i][j] = a[i - 1] === b[j - 1]
+        ? dp[i - 1][j - 1]
+        : 1 + Math.min(dp[i - 1][j - 1], dp[i - 1][j], dp[i][j - 1]);
+    }
+  }
+  return dp[a.length][b.length];
+}
+
+/**
+ * Rewrites near-miss spellings of DOMAIN_KEYWORDS to their canonical
+ * form (e.g. "skilss" -> "skills") so the exact-match regexes further
+ * down still fire. Only touches alphabetic words of length >= 4 and
+ * only when a keyword is within edit-distance 1 (or 2 for longer
+ * words) - short/unrelated words are left untouched to avoid false
+ * corrections.
+ */
+function correctTypos(q: string): string {
+  return q
+    .split(/\s+/)
+    .map((word) => {
+      const stripped = word.replace(/[^a-z]/gi, '').toLowerCase();
+      if (stripped.length < 4) return word;
+      if (DOMAIN_KEYWORDS.includes(stripped)) return word;
+
+      let best: string | null = null;
+      let bestDist = Infinity;
+      for (const kw of DOMAIN_KEYWORDS) {
+        const d = levenshtein(stripped, kw);
+        if (d < bestDist) {
+          bestDist = d;
+          best = kw;
+        }
+      }
+      const threshold = stripped.length <= 5 ? 1 : 2;
+      return best && bestDist <= threshold ? word.replace(new RegExp(stripped, 'i'), best) : word;
+    })
+    .join(' ');
+}
+
 const COUNT_WORDS = /\bhow many\b|\bnumber of\b|\bcount of\b|\btotal\b/i;
 const LIST_WORDS = /\blist\b|\ball (of )?(his|your|my|the)\b|\bshow me\b|\bwhich\b|\bwhat (projects|apps|things)\b/i;
 
@@ -63,7 +119,7 @@ function findNamedProjectQuery(q: string): string | null {
 }
 
 export function classifyIntent(rawQuestion: string): Intent {
-  const q = rawQuestion.toLowerCase();
+  const q = correctTypos(rawQuestion.toLowerCase());
 
   const wantsProjects =
     /\bproject(s)?\b|\bapp(s)?\b|\bbuilt\b|\bbuild\b|\bmade\b|\bdeveloped\b|\bportfolio\b|\bwardrobe\b|\bdemo\b/.test(q);
