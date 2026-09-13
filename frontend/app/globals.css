@@ -16,3 +16,21 @@ body {
 .markdown-body code { @apply bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-sm; }
 .markdown-body pre { @apply bg-slate-100 dark:bg-slate-800 p-3 rounded-lg overflow-x-auto mb-2; }
 .markdown-body a { @apply text-brand underline; }
+
+/* Shared form input style used across admin singleton-record forms
+   (Profile, Personal Info, Career Goals, AI Instructions). Previously
+   defined per-page via a `<style jsx global>` block in the Profile page
+   only, which meant it silently disappeared on any admin route that
+   didn't happen to render after Profile. Centralized here so every page
+   gets it regardless of navigation order. */
+.input {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(226 232 240);
+  background: transparent;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+.dark .input { border-color: rgb(30 41 59); }
+.input:focus { box-shadow: 0 0 0 2px #6366f1; }

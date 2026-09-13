@@ -11,6 +11,10 @@ const SOURCE_LABELS: Record<string, string> = {
   experience: 'Work Experience',
   education: 'Education',
   achievement: 'Achievement / Certification',
+  certification: 'Certification',
+  service: 'Service',
+  personal: 'About Me',
+  career: 'Career Goals',
 };
 
 /**

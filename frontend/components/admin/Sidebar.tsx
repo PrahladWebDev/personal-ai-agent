@@ -4,21 +4,28 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Bot, LayoutDashboard, User, Sparkles, Briefcase, Rocket, FileText,
-  Github, Link2, GraduationCap, Award, Settings, LogOut,
+  Github, Link2, GraduationCap, Award, BadgeCheck, Wrench, UserCircle,
+  Target, SlidersHorizontal, Settings, LogOut,
 } from 'lucide-react';
 import { logout } from '@/lib/auth';
 
+// Order follows the project spec's recommended Admin navigation order.
 const NAV = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/profile', label: 'Profile', icon: User },
+  { href: '/admin/projects', label: 'Projects', icon: Rocket },
+  { href: '/admin/github', label: 'GitHub', icon: Github },
   { href: '/admin/skills', label: 'Skills', icon: Sparkles },
   { href: '/admin/experience', label: 'Experience', icon: Briefcase },
-  { href: '/admin/projects', label: 'Projects', icon: Rocket },
   { href: '/admin/education', label: 'Education', icon: GraduationCap },
+  { href: '/admin/certifications', label: 'Certifications', icon: BadgeCheck },
   { href: '/admin/achievements', label: 'Achievements', icon: Award },
+  { href: '/admin/services', label: 'Services', icon: Wrench },
+  { href: '/admin/personal', label: 'Personal / About Me', icon: UserCircle },
+  { href: '/admin/career', label: 'Career Goals', icon: Target },
   { href: '/admin/social-links', label: 'Social Links', icon: Link2 },
   { href: '/admin/documents', label: 'Documents', icon: FileText },
-  { href: '/admin/github', label: 'GitHub', icon: Github },
+  { href: '/admin/ai-instructions', label: 'AI Instructions', icon: SlidersHorizontal },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];
 

@@ -115,12 +115,80 @@ export interface SocialLink {
 
 export interface DashboardStats {
   projects: number;
+  portfolioProjects: number;
+  githubOnlyRepositories: number;
   skills: number;
   documents: number;
   githubRepositories: number;
   knowledgeChunks: number;
+  certifications: number;
+  services: number;
   questionsToday: number;
   questionsThisMonth: number;
   totalConversations: number;
   mostCommonQuestions: { question: string; count: string }[];
+}
+
+export interface Certification {
+  id: string;
+  name: string;
+  issuing_organization: string;
+  description?: string;
+  issue_date?: string;
+  expiration_date?: string;
+  credential_id?: string;
+  credential_url?: string;
+  document_id?: string | null;
+  visibility: 'public' | 'private';
+  display_order: number;
+}
+
+export interface Service {
+  id: string;
+  name: string;
+  short_description?: string;
+  detailed_description?: string;
+  technologies?: string[];
+  experience_level?: string;
+  availability?: 'available' | 'limited' | 'unavailable';
+  service_url?: string;
+  visibility: 'public' | 'private';
+  display_order: number;
+}
+
+export interface PersonalInfo {
+  id?: string;
+  short_introduction?: string;
+  detailed_biography?: string;
+  current_focus?: string;
+  interests?: string;
+  hobbies?: string;
+  languages?: string[];
+  personal_goals?: string;
+  professional_interests?: string;
+  other_information?: string;
+  visibility: 'public' | 'private';
+}
+
+export interface CareerGoals {
+  id?: string;
+  current_goal?: string;
+  target_roles?: string[];
+  currently_learning?: string[];
+  future_goals?: string;
+  preferred_work_type?: string;
+  preferred_project_types?: string;
+  professional_interests?: string;
+  visibility: 'public' | 'private';
+}
+
+export interface AiInstructions {
+  id?: string;
+  ai_introduction?: string;
+  response_style?: 'concise' | 'detailed' | 'friendly' | 'formal' | 'technical';
+  fallback_response?: string;
+  include_github_links: boolean;
+  include_project_links: boolean;
+  include_contact_info: boolean;
+  custom_instructions?: string;
 }

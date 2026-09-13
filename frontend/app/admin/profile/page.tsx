@@ -108,20 +108,6 @@ export default function ProfilePage() {
           {saving ? 'Saving…' : 'Save Profile'}
         </button>
       </form>
-
-      <style jsx global>{`
-        .input {
-          width: 100%;
-          border-radius: 0.5rem;
-          border: 1px solid rgb(226 232 240);
-          background: transparent;
-          padding: 0.5rem 0.75rem;
-          font-size: 0.875rem;
-          outline: none;
-        }
-        .dark .input { border-color: rgb(30 41 59); }
-        .input:focus { box-shadow: 0 0 0 2px #6366f1; }
-      `}</style>
     </div>
   );
 }

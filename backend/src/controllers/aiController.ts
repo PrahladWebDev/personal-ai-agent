@@ -7,6 +7,10 @@ import { env } from '../config/env';
 import { aiProvider } from '../ai';
 import { retrieveRelevantChunks } from '../rag/retrieval';
 import { buildMessages } from '../rag/promptBuilder';
+import { classifyIntent } from '../ai/intent';
+import { buildStructuredContext } from '../rag/contextBuilder';
+import { getAiInstructions } from '../rag/knowledgeBase';
+import { reindexAllKnowledge } from '../rag/reindexAll';
 import { isSuspiciousInput, sanitizeForPrompt } from '../security/promptInjection';
 import { logger } from '../utils/logger';
 
@@ -53,13 +57,22 @@ export const chat = asyncHandler(async (req: Request, res: Response) => {
   await ensureConversation(convoId);
 
   const history = await loadHistory(convoId);
-  const [{ rows: profileRows }, chunks] = await Promise.all([
+
+  // Hybrid retrieval: classify intent -> pull exact/structured sections
+  // for anything the intent says is relevant (counts/lists are always
+  // exact DB queries, never vector similarity), AND run semantic search
+  // over document_chunks (uploaded docs, README text, narrative content)
+  // so free-form / cross-cutting questions still get useful context.
+  const intent = classifyIntent(sanitized);
+  const [{ rows: profileRows }, structuredSections, chunks, aiInstructions] = await Promise.all([
     pool.query('SELECT name FROM profile ORDER BY updated_at DESC LIMIT 1'),
+    buildStructuredContext(intent, sanitized),
     retrieveRelevantChunks(sanitized, { visibility: 'public' }),
+    getAiInstructions(),
   ]);
   const profileName = profileRows[0]?.name || '';
 
-  const messages = buildMessages(profileName, sanitized, chunks, history);
+  const messages = buildMessages(profileName, sanitized, structuredSections, chunks, history, aiInstructions);
 
   let fullAnswer = '';
   try {
@@ -98,6 +111,16 @@ export const searchKnowledge = asyncHandler(async (req: Request, res: Response) 
     visibility: includePrivate ? 'public_and_private' : 'public',
   });
   return ok(res, chunks);
+});
+
+/**
+ * Manual "Re-index knowledge" trigger for the admin dashboard (spec
+ * section 16, "Re-indexing"). Rebuilds every structured knowledge
+ * section's embeddings from the current database state.
+ */
+export const reindexKnowledge = asyncHandler(async (_req: Request, res: Response) => {
+  const result = await reindexAllKnowledge();
+  return ok(res, result);
 });
 
 async function ensureConversation(id: string) {

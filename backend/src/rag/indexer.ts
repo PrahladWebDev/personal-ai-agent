@@ -9,7 +9,17 @@ import { getEmbeddings, toVectorLiteral } from '../ai/embeddings';
  * retrieve structured data the same way it retrieves uploaded documents.
  */
 export async function indexKnowledgeItem(params: {
-  sourceType: 'project' | 'skill' | 'experience' | 'education' | 'achievement' | 'profile';
+  sourceType:
+    | 'project'
+    | 'skill'
+    | 'experience'
+    | 'education'
+    | 'achievement'
+    | 'profile'
+    | 'certification'
+    | 'service'
+    | 'personal'
+    | 'career';
   sourceId: string;
   name: string;
   text: string;
