@@ -57,7 +57,7 @@ personal-ai-agent/
 └── .env.example
 ```
 
-## 4. Prerequisites
+## 4. Prerequisite
 
 - Docker + Docker Compose v2 (`docker compose`, not `docker-compose`)
 - A domain pointed at your VPS (A record)
